@@ -1,9 +1,9 @@
 package excusasHspring.modelo.empleados.encargados.evaluacion;
 
-import modelo.empleados.encargados.Encargado;
-import modelo.excusas.Excusa;
-import servicios.AdministradorProntuario;
-import servicios.IEmailSender;
+import excusasHspring.modelo.empleados.encargados.Encargado;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.servicios.AdministradorProntuario;
+import excusasHspring.servicios.IEmailSender;
 
 public class EvaluacionProductiva implements IEvaluacionExcusa {
     private final IEmailSender emailSender;

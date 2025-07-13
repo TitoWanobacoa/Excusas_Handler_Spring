@@ -1,15 +1,16 @@
 package excusasHspring.modelo.tests.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.empleados.encargados.CEO;
-import modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
-import modelo.excusas.Compleja;
-import modelo.excusas.Excusa;
-import modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.encargados.CEO;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
+import excusasHspring.modelo.excusas.Compleja;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.ITipoExcusa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import servicios.*;
+import excusasHspring.servicios.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CeoTest {

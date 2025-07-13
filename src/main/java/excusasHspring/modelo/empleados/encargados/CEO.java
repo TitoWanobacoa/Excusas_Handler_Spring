@@ -1,10 +1,10 @@
 package excusasHspring.modelo.empleados.encargados;
 
-import modelo.excusas.Excusa;
-import servicios.IAdministradorProntuario;
-import servicios.IEmailSender;
-import servicios.IObservador;
-import servicios.NotificacionExcusa;
+import excusasHspring.modelo.excusas.Excusa ;
+import excusasHspring.servicios.IAdministradorProntuario ;
+import excusasHspring.servicios.IEmailSender ;
+import excusasHspring.servicios.IObservador ;
+import excusasHspring.servicios.NotificacionExcusa ;
 
 public class CEO extends Encargado implements IObservador {
     private final IEmailSender emailSender;

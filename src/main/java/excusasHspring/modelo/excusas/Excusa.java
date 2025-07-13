@@ -1,6 +1,6 @@
 package excusasHspring.modelo.excusas;
 
-import modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.Empleado;
 
 public class Excusa {
     private final Empleado empleado;

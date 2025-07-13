@@ -1,7 +1,7 @@
 package excusasHspring.servicios;
 
-import modelo.empleados.encargados.Encargado;
-import modelo.excusas.Excusa;
+import excusasHspring.modelo.empleados.encargados.Encargado;
+import excusasHspring.modelo.excusas.Excusa;
 
 public class NotificacionExcusa {
     private final Encargado encargado;

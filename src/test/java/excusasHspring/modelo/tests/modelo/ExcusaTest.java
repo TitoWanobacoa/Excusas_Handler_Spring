@@ -1,10 +1,12 @@
 package excusasHspring.modelo.tests.modelo;
 
-import modelo.empleados.Empleado;
-import modelo.excusas.Excusa;
-import modelo.excusas.ITipoExcusa;
-import modelo.excusas.Trivial;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.excusas.Trivial;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ExcusaTest {
 

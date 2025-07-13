@@ -1,7 +1,7 @@
 package excusasHspring.modelo.empleados.encargados.evaluacion;
 
-import modelo.empleados.encargados.Encargado;
-import modelo.excusas.Excusa;
+import excusasHspring.modelo.empleados.encargados.Encargado;
+import excusasHspring.modelo.excusas.Excusa;
 
 public interface IEvaluacionExcusa {
     void evaluar(Encargado encargado, Excusa excusa);

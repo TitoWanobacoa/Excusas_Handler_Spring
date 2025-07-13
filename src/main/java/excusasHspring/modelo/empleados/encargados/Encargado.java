@@ -1,8 +1,8 @@
 package excusasHspring.modelo.empleados.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.empleados.encargados.evaluacion.IEvaluacionExcusa;
-import modelo.excusas.Excusa;
+import excusasHspring.modelo.empleados.Empleado ;
+import excusasHspring.modelo.empleados.encargados.evaluacion.IEvaluacionExcusa ;
+import excusasHspring.modelo.excusas.Excusa;
 
 public abstract class Encargado extends Empleado {
     private Encargado siguiente;

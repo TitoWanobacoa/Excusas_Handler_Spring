@@ -1,6 +1,6 @@
 package excusasHspring.servicios;
 
-import modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.Excusa;
 
 public interface IAdministradorProntuario {
     void guardarProntuario(Excusa excusa);

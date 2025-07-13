@@ -1,8 +1,8 @@
 package excusasHspring.modelo.empleados.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.excusas.Excusa;
-import modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.ITipoExcusa ;
 
 public class ManejadorDeExcusa {
     private final Encargado encargadoInicial;

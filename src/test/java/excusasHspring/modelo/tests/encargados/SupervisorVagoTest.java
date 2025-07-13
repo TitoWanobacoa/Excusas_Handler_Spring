@@ -1,17 +1,17 @@
 package excusasHspring.modelo.tests.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.empleados.encargados.*;
-import modelo.empleados.encargados.evaluacion.EvaluacionNormal;
-import modelo.empleados.encargados.evaluacion.EvaluacionVaga;
-import modelo.excusas.ITipoExcusa;
-import modelo.excusas.Moderada;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.encargados.*;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionVaga;
+import excusasHspring.modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.excusas.Moderada;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import servicios.AdministradorProntuario;
-import servicios.EmailSenderFake;
-import servicios.IAdministradorProntuario;
-import servicios.IEmailSender;
+import excusasHspring.servicios.AdministradorProntuario;
+import excusasHspring.servicios.EmailSenderFake;
+import excusasHspring.servicios.IAdministradorProntuario;
+import excusasHspring.servicios.IEmailSender;
 
 class SupervisorVagoTest {
 

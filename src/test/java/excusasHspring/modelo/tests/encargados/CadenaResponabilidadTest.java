@@ -1,15 +1,15 @@
 package excusasHspring.modelo.tests.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.empleados.encargados.*;
-import modelo.empleados.encargados.evaluacion.EvaluacionNormal;
-import modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
-import modelo.excusas.*;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.encargados.*;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
+import excusasHspring.modelo.excusas.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import servicios.AdministradorProntuario;
-import servicios.EmailSenderFake;
-import servicios.IEmailSender;
+import excusasHspring.servicios.AdministradorProntuario;
+import excusasHspring.servicios.EmailSenderFake;
+import excusasHspring.servicios.IEmailSender;
 
 class CadenaResponsabilidadTest {
 

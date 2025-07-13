@@ -1,15 +1,15 @@
 package excusasHspring.modelo.tests.encargados;
 
-import modelo.empleados.Empleado;
-import modelo.empleados.encargados.*;
-import modelo.empleados.encargados.evaluacion.EvaluacionNormal;
-import modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.encargados.*;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
+import excusasHspring.modelo.excusas.ITipoExcusa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import servicios.AdministradorProntuario;
-import servicios.EmailSenderFake;
-import servicios.IAdministradorProntuario;
-import servicios.IEmailSender;
+import excusasHspring.servicios.AdministradorProntuario;
+import excusasHspring.servicios.EmailSenderFake;
+import excusasHspring.servicios.IAdministradorProntuario;
+import excusasHspring.servicios.IEmailSender;
 
 
 class TipoInvalido implements ITipoExcusa {

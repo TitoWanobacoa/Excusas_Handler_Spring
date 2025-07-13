@@ -1,24 +1,30 @@
 package excusasHspring.servicios;
 
-import modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.Excusa;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AdministradorProntuario extends Observable implements IAdministradorProntuario {
-    private static AdministradorProntuario instancia;
+    private static final AdministradorProntuario instancia = new AdministradorProntuario();
+    private final List<String> prontuarios = new ArrayList<>();
 
     private AdministradorProntuario() {}
 
     public static AdministradorProntuario getInstancia() {
-        if (instancia == null) {
-            instancia = new AdministradorProntuario();
-        }
         return instancia;
     }
 
     @Override
     public void guardarProntuario(Excusa excusa) {
-        System.out.println("Prontuario guardado para " + excusa.getEmpleado().getNombre());
+        String entrada = "Prontuario guardado para " + excusa.getEmpleado().getNombre();
+        prontuarios.add(entrada);
 
+        System.out.println(entrada);
         this.notificar(new NotificacionExcusa(null, excusa));
+    }
+
+    public List<String> getProntuarios() {
+        return new ArrayList<>(prontuarios); // copia defensiva
     }
 
     @Override
@@ -26,4 +32,3 @@ public class AdministradorProntuario extends Observable implements IAdministrado
         super.agregarObservador(o);
     }
 }
-
