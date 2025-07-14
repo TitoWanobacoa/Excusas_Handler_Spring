@@ -33,7 +33,8 @@ class AdministradorProntuarioTest {
 
     @BeforeEach
     void setUp() {
-        admin = AdministradorProntuario.getInstancia();
+        admin = new AdministradorProntuario();
+
         observador = new TestObservador();
         admin.agregarObservador(observador);
 

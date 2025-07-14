@@ -23,10 +23,12 @@ class CeoTest {
     @BeforeEach
     void setUp() {
         emailSender = new EmailSenderFake();
-        ceo = new CEOFake(emailSender, AdministradorProntuario.getInstancia());
-        ceo.setEstrategia(new EvaluacionProductiva(emailSender));
+        IAdministradorProntuario admin = new AdministradorProntuario(); // Instancia directa
 
-        AdministradorProntuario.getInstancia().agregarObservador(ceo);
+        ceo = new CEOFake(emailSender, admin);
+        ceo.setEstrategia(new EvaluacionProductiva(emailSender, admin));
+
+        admin.agregarObservador(ceo);
 
         empleado = new Empleado("Martín", "martin@test.com", 101);
         tipoExcusa = new Compleja();
@@ -52,7 +54,7 @@ class CeoTest {
         private NotificacionExcusa ultimaNotificacion;
 
         public CEOFake(IEmailSender emailSender, IAdministradorProntuario admin) {
-            super("CEO Fake", "ceo@fake.com", 999, emailSender, admin);
+            super("CEO Fake", "ceo@excusas.sa", 999, emailSender, admin);
         }
 
 

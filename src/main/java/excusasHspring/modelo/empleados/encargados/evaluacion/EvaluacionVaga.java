@@ -9,4 +9,9 @@ public class EvaluacionVaga implements IEvaluacionExcusa {
         System.out.println("Evaluación vaga. El encargado no se toma el trabajo.");
         encargado.pasarAlSiguiente(excusa);
     }
+    @Override
+    public String getNombre() {
+        return "VAGA";
+    }
+
 }

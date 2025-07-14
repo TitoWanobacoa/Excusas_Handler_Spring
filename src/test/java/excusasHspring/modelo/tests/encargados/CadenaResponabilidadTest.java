@@ -5,6 +5,7 @@ import excusasHspring.modelo.empleados.encargados.*;
 import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
 import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
 import excusasHspring.modelo.excusas.*;
+import excusasHspring.servicios.IAdministradorProntuario;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import excusasHspring.servicios.AdministradorProntuario;
@@ -23,7 +24,7 @@ class CadenaResponsabilidadTest {
     @BeforeEach
     void setUp() {
         IEmailSender emailSender = new EmailSenderFake();
-        AdministradorProntuario admin = AdministradorProntuario.getInstancia();
+        IAdministradorProntuario admin = new AdministradorProntuario();
 
         // Encargados
         Encargado recepcionista = new Recepcionista("Recepcionista", "recepcion@excusas.sa", 201, new EmailSenderFake());
@@ -36,7 +37,7 @@ class CadenaResponsabilidadTest {
         recepcionista.setEstrategia(new EvaluacionNormal());
         supervisor.setEstrategia(new EvaluacionNormal());
         gerente.setEstrategia(new EvaluacionNormal());
-        ceo.setEstrategia(new EvaluacionProductiva(emailSender));
+        ceo.setEstrategia(new EvaluacionProductiva(emailSender, admin));
         rechazador.setEstrategia(new EvaluacionNormal());
 
         manejador = new ManejadorDeExcusa(recepcionista, supervisor, gerente, ceo, rechazador);

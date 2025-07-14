@@ -1,7 +1,7 @@
 package excusasHspring.modelo.empleados.encargados;
 
-import excusasHspring.modelo.empleados.Empleado ;
-import excusasHspring.modelo.empleados.encargados.evaluacion.IEvaluacionExcusa ;
+import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.modelo.empleados.encargados.evaluacion.IEvaluacionExcusa;
 import excusasHspring.modelo.excusas.Excusa;
 
 public abstract class Encargado extends Empleado {
@@ -24,6 +24,11 @@ public abstract class Encargado extends Empleado {
         estrategia.evaluar(this, excusa);
     }
 
+    public void aceptarExcusa(Excusa excusa) {
+        excusa.setEncargadoAcepto(this.getNombre(), this.getClass().getSimpleName(), this.getNroLegajo());
+        procesar(excusa);
+    }
+
     public void pasarAlSiguiente(Excusa excusa) {
         if (siguiente != null) {
             siguiente.manejarExcusa(excusa);
@@ -39,6 +44,10 @@ public abstract class Encargado extends Empleado {
 
     public void setEstrategia(IEvaluacionExcusa estrategia) {
         this.estrategia = estrategia;
+    }
+
+    public IEvaluacionExcusa getEstrategia() {
+        return this.estrategia;
     }
 
     public abstract void procesar(Excusa excusa);

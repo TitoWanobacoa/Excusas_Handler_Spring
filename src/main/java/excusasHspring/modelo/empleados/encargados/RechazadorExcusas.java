@@ -5,6 +5,7 @@ import excusasHspring.servicios.IEmailSender;
 
 public class RechazadorExcusas extends Encargado {
     private final IEmailSender emailSender;
+    private Excusa ultimaExcusaRechazada;
 
     public RechazadorExcusas(String nombre, String email, int legajo, IEmailSender emailSender) {
         super(nombre, email, legajo);
@@ -13,11 +14,16 @@ public class RechazadorExcusas extends Encargado {
 
     @Override
     public void procesar(Excusa excusa) {
+        this.ultimaExcusaRechazada = excusa;
         emailSender.enviarEmail(
                 excusa.getEmpleado().getEmail(),
                 "rechazo@excusas.sa",
                 "Excusa rechazada",
                 "Lo sentimos, tu excusa fue rechazada."
         );
+    }
+
+    public Excusa getUltimaExcusaRechazada() {
+        return ultimaExcusaRechazada;
     }
 }

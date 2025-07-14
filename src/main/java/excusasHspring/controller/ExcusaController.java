@@ -1,140 +1,104 @@
 package excusasHspring.controller;
 
-import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.dto.ExcusaRequest;
+import excusasHspring.dto.ExcusaResponse;
 import excusasHspring.modelo.excusas.Excusa;
-import excusasHspring.modelo.excusas.ITipoExcusa;
-import excusasHspring.modelo.excusas.Compleja;
-import excusasHspring.modelo.excusas.Moderada;
-import excusasHspring.modelo.excusas.Trivial;
-import excusasHspring.modelo.excusas.Inverosimil;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionVaga;
-import excusasHspring.modelo.empleados.encargados.ManejadorDeExcusa;
-import excusasHspring.servicios.AdministradorProntuario;
-
-import excusasHspring.modelo.empleados.encargados.Recepcionista;
-import excusasHspring.modelo.empleados.encargados.Supervisor;
-import excusasHspring.modelo.empleados.encargados.GerenteRRHH;
-import excusasHspring.modelo.empleados.encargados.CEO;
-
-import excusasHspring.servicios.EmailSenderFake;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.excusas.DatosEncargado;
+import excusasHspring.service.ExcusaService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import excusasHspring.dto.ExcusaResponse;
-
-import java.util.*;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/excusas")
 public class ExcusaController {
 
-    private final List<Excusa> excusasProcesadas = new ArrayList<>();
-    private final List<String> notificaciones = new ArrayList<>();
-    private final AdministradorProntuario prontuario;
-    private final ManejadorDeExcusa manejador;
+    private final ExcusaService service;
 
-    public ExcusaController() {
-        AdministradorProntuario prontuario = AdministradorProntuario.getInstancia();
-        IEmailSender emailSender = new EmailSenderFake();
-
-        Recepcionista recepcionista = new Recepcionista("Ana", "ana@empresa.com", 1001, emailSender);
-        Supervisor supervisor = new Supervisor("Luis", "luis@empresa.com", 1002, emailSender);
-        GerenteRRHH gerente = new GerenteRRHH("Marta", "marta@empresa.com", 1003, emailSender);
-        CEO ceo = new CEO("Carlos", "carlos@empresa.com", 1004, emailSender, prontuario);
-
-        recepcionista.setEstrategia(new EvaluacionNormal());
-        supervisor.setEstrategia(new EvaluacionVaga());
-        gerente.setEstrategia(new EvaluacionProductiva(emailSender));
-        ceo.setEstrategia(new EvaluacionNormal());
-
-        prontuario.agregarObservador(ceo);
-
-        this.prontuario = AdministradorProntuario.getInstancia();
-        this.manejador = new ManejadorDeExcusa(recepcionista, supervisor, gerente, ceo);
+    public ExcusaController(ExcusaService service) {
+        this.service = service;
     }
 
-
     @PostMapping("/enviar")
-    public Map<String, Object> enviarExcusa(@RequestBody ExcusaRequest request) {
-        Empleado empleado = new Empleado(
-                request.getNombreEmpleado(),
-                request.getEmailEmpleado(),
-                request.getLegajoEmpleado()
-        );
-        ITipoExcusa tipo = switch (request.getTipo().toLowerCase()) {
-            case "compleja" -> new Compleja();
-            case "moderada" -> new Moderada();
-            case "trivial" -> new Trivial();
-            case "inverosimil" -> new Inverosimil();
-            default -> throw new IllegalArgumentException("Tipo de excusa desconocido: " + request.getTipo());
-        };
-
-        Excusa excusa = new Excusa(empleado, tipo, request.getDescripcion());
-        manejador.recibirExcusa(request.getDescripcion(), empleado, tipo);
-        excusasProcesadas.add(excusa);
-
-        ExcusaResponse respuestaDto = new ExcusaResponse(
-                empleado.getNombre(),
-                empleado.getEmail(),
-                empleado.getNroLegajo(),
-                tipo.getClass().getSimpleName(),
-                excusa.getDescripcion()
-        );
-
-        Map<String, Object> respuesta = new LinkedHashMap<>();
-        respuesta.put("excusa", respuestaDto);
-        respuesta.put("notificaciones", new ArrayList<>(notificaciones));
-        respuesta.put("prontuarios", prontuario.getProntuarios());
-        return respuesta;
+    public ResponseEntity<Map<String, Object>> enviarExcusa(@Valid @RequestBody ExcusaRequest request) {
+        Map<String, Object> respuesta = service.procesarExcusa(request);
+        return ResponseEntity.ok(respuesta);
     }
 
     @GetMapping("/procesadas")
-    public List<ExcusaResponse> listarExcusas() {
-        return excusasProcesadas.stream()
-                .map(excusa -> new ExcusaResponse(
-                        excusa.getEmpleado().getNombre(),
-                        excusa.getEmpleado().getEmail(),
-                        excusa.getEmpleado().getNroLegajo(),
-                        excusa.getTipo().getClass().getSimpleName(),
-                        excusa.getDescripcion()
-                ))
-                .toList();
+    public ResponseEntity<List<ExcusaResponse>> listarExcusas() {
+        return ResponseEntity.ok(service.listarExcusas());
     }
-
 
     @GetMapping("/notificaciones")
-    public List<String> getNotificaciones() {
-        return notificaciones;
+    public ResponseEntity<List<String>> getNotificaciones() {
+        return ResponseEntity.ok(service.getNotificaciones());
     }
 
-    @GetMapping("/prontuarios")
-    public List<String> getProntuarios() {
-        return prontuario.getProntuarios();
+    @GetMapping("/{legajo}")
+    public ResponseEntity<?> buscarPorLegajo(@PathVariable int legajo) {
+        List<ExcusaResponse> resultados = service.buscarPorLegajo(legajo);
+        if (resultados.isEmpty()) {
+            return ResponseEntity
+                    .status(404)
+                    .body("No se encontraron excusas para el legajo: " + legajo);
+        }
+        return ResponseEntity.ok(resultados);
     }
 
-    public static class ExcusaRequest {
-        private String nombreEmpleado;
-        private String emailEmpleado;
-        private int legajoEmpleado;
-        private String tipo;
-        private String descripcion;
-
-        public String getNombreEmpleado() { return nombreEmpleado; }
-        public void setNombreEmpleado(String nombreEmpleado) { this.nombreEmpleado = nombreEmpleado; }
-
-        public String getEmailEmpleado() { return emailEmpleado; }
-        public void setEmailEmpleado(String emailEmpleado) { this.emailEmpleado = emailEmpleado; }
-
-        public int getLegajoEmpleado() { return legajoEmpleado; }
-        public void setLegajoEmpleado(int legajoEmpleado) { this.legajoEmpleado = legajoEmpleado; }
-
-        public String getTipo() { return tipo; }
-        public void setTipo(String tipo) { this.tipo = tipo; }
-
-        public String getDescripcion() { return descripcion; }
-        public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    @GetMapping
+    public ResponseEntity<List<ExcusaResponse>> buscarConFiltros(
+            @RequestParam(required = false) String motivo,
+            @RequestParam(required = false) String encargado
+    ) {
+        return ResponseEntity.ok(service.buscarConFiltros(motivo, encargado));
     }
 
+    @GetMapping("/rechazadas")
+    public ResponseEntity<List<ExcusaResponse>> obtenerRechazadas() {
+        return ResponseEntity.ok(service.obtenerRechazadas());
+    }
+
+    @GetMapping("/buscar/{id}")
+    public ResponseEntity<?> buscarPorId(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(service.buscarPorId(id));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
+    @DeleteMapping("/eliminar")
+    public ResponseEntity<String> eliminarPorId(@RequestParam long id) {
+        boolean eliminada = service.eliminarPorId(id);
+        if (!eliminada) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró una excusa con ese ID");
+        }
+        return ResponseEntity.ok("Excusa eliminada con éxito");
+    }
+
+    @GetMapping("/aceptada/{id}")
+    public ResponseEntity<?> encargadoAcepto(@PathVariable long id) {
+        try {
+            Excusa excusa = service.getExcusaById(id);
+            DatosEncargado encargado = excusa.getEncargadoAcepto();
+            if (encargado == null) {
+                return ResponseEntity.ok("La excusa no fue aceptada por ningún encargado");
+            }
+            return ResponseEntity.ok(encargado);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Excusa no encontrada");
+        }
+    }
+
+    @GetMapping("/rechazada/{id}")
+    public ResponseEntity<String> fueRechazada(@PathVariable long id) {
+        boolean rechazada = service.fueRechazada(id);
+        return ResponseEntity.ok(rechazada ? "La excusa fue rechazada" : "La excusa no fue rechazada");
+    }
 }

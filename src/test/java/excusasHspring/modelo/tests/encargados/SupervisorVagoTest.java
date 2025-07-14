@@ -21,7 +21,8 @@ class SupervisorVagoTest {
     @BeforeEach
     void setUp() {
         IEmailSender emailSender = new EmailSenderFake();
-        IAdministradorProntuario admin = AdministradorProntuario.getInstancia();
+        IAdministradorProntuario admin = new AdministradorProntuario();
+
 
         Encargado supervisor = new Supervisor("Supervisor", "supervision@excusas.sa", 202, emailSender);
         Encargado ceo = new CEO("CEO", "ceo@excusas.sa", 999, emailSender, admin);

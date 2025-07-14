@@ -27,7 +27,8 @@ class RechazoTest {
     @BeforeEach
     void setUp() {
         IEmailSender emailSender = new EmailSenderFake();
-        IAdministradorProntuario admin = AdministradorProntuario.getInstancia();
+        IAdministradorProntuario admin = new AdministradorProntuario();
+
 
 
         Encargado recepcionista = new Recepcionista("Recepcionista", "recepcion@excusas.sa", 201, new EmailSenderFake());
