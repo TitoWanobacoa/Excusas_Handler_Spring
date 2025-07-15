@@ -1,7 +1,8 @@
 package excusasHspring.service;
 
 import excusasHspring.modelo.excusas.Excusa;
-import excusasHspring.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.Prontuario;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +17,9 @@ public class ProntuarioService {
     }
 
     public List<String> obtenerProntuarios() {
-        return prontuario.getProntuarios();
+        return prontuario.getProntuarios().stream()
+                .map(Prontuario::toString)
+                .toList();
     }
 
     public List<Excusa> obtenerExcusasGuardadas() {
@@ -30,15 +33,17 @@ public class ProntuarioService {
                 .filter(e -> {
                     if (encargado == null) return true;
                     if (e.getEncargadoAcepto() == null) return false;
-                    return encargado.equalsIgnoreCase(e.getEncargadoAcepto().nombre())
-                            || encargado.equalsIgnoreCase(e.getEncargadoAcepto().rol())
-                            || encargado.equals(String.valueOf(e.getEncargadoAcepto().legajo()));
+                    return encargado.equalsIgnoreCase(e.getEncargadoAcepto().getNombre())
+                            || encargado.equalsIgnoreCase(e.getEncargadoAcepto().getRol())
+                            || encargado.equals(String.valueOf(e.getEncargadoAcepto().getLegajo()));
                 })
+
                 .toList();
     }
 
     public List<String> filtrarProntuarios(String contiene) {
         return prontuario.getProntuarios().stream()
+                .map(Prontuario::toString)
                 .filter(p -> contiene == null || p.toLowerCase().contains(contiene.toLowerCase()))
                 .toList();
     }

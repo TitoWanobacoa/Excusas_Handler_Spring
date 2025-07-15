@@ -4,12 +4,8 @@ import excusasHspring.dto.CambioModoRequest;
 import excusasHspring.dto.EncargadoRequest;
 import excusasHspring.dto.EncargadoResponse;
 import excusasHspring.modelo.empleados.encargados.*;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
-import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionVaga;
-import excusasHspring.modelo.empleados.encargados.evaluacion.IEvaluacionExcusa;
-import excusasHspring.servicios.IAdministradorProntuario;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.IEmailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

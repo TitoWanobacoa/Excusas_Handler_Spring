@@ -21,7 +21,7 @@ public class ExcusaRequest {
     @NotBlank
     private String descripcion;
 
-    // Getters y setters
+
     public String getNombreEmpleado() {
         return nombreEmpleado;
     }

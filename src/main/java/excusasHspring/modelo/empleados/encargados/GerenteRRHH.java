@@ -1,7 +1,7 @@
 package excusasHspring.modelo.empleados.encargados;
 
 import excusasHspring.modelo.excusas.Excusa;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.servicios.IEmailSender;
 
 public class GerenteRRHH extends Encargado {
     private final IEmailSender emailSender;

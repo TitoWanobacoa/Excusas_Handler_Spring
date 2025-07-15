@@ -5,10 +5,14 @@ import excusasHspring.dto.ExcusaResponse;
 import excusasHspring.exception.TipoExcusaInvalidoException;
 import excusasHspring.modelo.empleados.Empleado;
 import excusasHspring.modelo.empleados.encargados.*;
-import excusasHspring.modelo.empleados.encargados.evaluacion.*;
-import excusasHspring.modelo.excusas.*;
-import excusasHspring.servicios.IAdministradorProntuario;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionFactory;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.TipoExcusa;
+import excusasHspring.modelo.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.IEmailSender;
+import excusasHspring.repository.EncargadoRepository;
+import excusasHspring.repository.ExcusaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,30 +20,28 @@ import java.util.*;
 @Service
 public class ExcusaService {
 
-    private final List<Excusa> excusasProcesadas = new ArrayList<>();
-    private final List<Excusa> rechazadas = new ArrayList<>();
-    private final List<String> notificaciones = new ArrayList<>();
-
-    private final IAdministradorProntuario prontuario;
+    private final ExcusaRepository excusaRepository;
     private final ManejadorDeExcusa manejador;
 
-    public ExcusaService(IEmailSender emailSender, IAdministradorProntuario prontuario) {
-        this.prontuario = prontuario;
+    @Autowired
+    public ExcusaService(
+            ExcusaRepository excusaRepository,
+            EncargadoRepository encargadoRepository,
+            IEmailSender emailSender,
+            IAdministradorProntuario prontuario
+    ) {
+        this.excusaRepository = excusaRepository;
 
-        Recepcionista recepcionista = new Recepcionista("Ana", "ana@empresa.com", 1001, emailSender);
-        Supervisor supervisor = new Supervisor("Luis", "luis@empresa.com", 1002, emailSender);
-        GerenteRRHH gerente = new GerenteRRHH("Marta", "marta@empresa.com", 1003, emailSender);
-        CEO ceo = new CEO("Carlos", "carlos@empresa.com", 1004, emailSender, prontuario);
-        RechazadorExcusas rechazador = new RechazadorExcusas("Sistema", "rechazo@excusas.sa", 9999, emailSender);
+        List<Encargado> encargados = encargadoRepository.findAll();
 
-        recepcionista.setEstrategia(new EvaluacionNormal());
-        supervisor.setEstrategia(new EvaluacionVaga());
-        gerente.setEstrategia(new EvaluacionProductiva(emailSender, prontuario));
-        ceo.setEstrategia(new EvaluacionNormal());
+        for (Encargado encargado : encargados) {
+            encargado.setEstrategia(
+                    EvaluacionFactory.crearEstrategia(encargado.getModo(), emailSender, prontuario)
+            );
+        }
 
-        prontuario.agregarObservador(ceo);
+        this.manejador = new ManejadorDeExcusa(encargados.toArray(new Encargado[0]));
 
-        this.manejador = new ManejadorDeExcusa(recepcionista, supervisor, gerente, ceo, rechazador);
     }
 
     public Map<String, Object> procesarExcusa(ExcusaRequest request) {
@@ -53,102 +55,53 @@ public class ExcusaService {
                 request.getLegajoEmpleado()
         );
 
-        ITipoExcusa tipo = construirTipoExcusa(request.getTipo());
+        Excusa excusa = new Excusa(empleado, request.getTipo(), request.getDescripcion());
 
-        Excusa excusa = new Excusa(empleado, tipo, request.getDescripcion());
-        excusasProcesadas.add(excusa);
-        manejador.recibirExcusa(request.getDescripcion(), empleado, tipo);
+        manejador.recibirExcusa(request.getDescripcion(), empleado, request.getTipo());
 
-        Excusa rechazada = manejador.getRechazador().getUltimaExcusaRechazada();
-        if (rechazada != null &&
-                rechazada.getEmpleado().getNroLegajo() == empleado.getNroLegajo() &&
-                rechazada.getDescripcion().equals(request.getDescripcion())) {
-            rechazadas.add(rechazada);
-        }
+        excusaRepository.save(excusa);
 
         ExcusaResponse respuestaDto = toResponse(excusa);
 
         Map<String, Object> respuesta = new LinkedHashMap<>();
         respuesta.put("excusa", respuestaDto);
-        respuesta.put("notificaciones", new ArrayList<>(notificaciones));
+        respuesta.put("notificaciones", List.of()); // si en el futuro se guardan
         return respuesta;
     }
 
-    private ITipoExcusa construirTipoExcusa(TipoExcusa tipo) {
-        return switch (tipo) {
-            case COMPLEJA -> new Compleja();
-            case MODERADA -> new Moderada();
-            case TRIVIAL -> new Trivial();
-            case INVEROSIMIL -> new Inverosimil();
-        };
-    }
-
     public List<ExcusaResponse> listarExcusas() {
-        return excusasProcesadas.stream()
+        return excusaRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
     public List<ExcusaResponse> buscarPorLegajo(int legajo) {
-        return excusasProcesadas.stream()
-                .filter(e -> e.getEmpleado().getNroLegajo() == legajo)
+        return excusaRepository.findByEmpleadoNroLegajo(legajo).stream()
                 .map(this::toResponse)
                 .toList();
-    }
-
-    public List<ExcusaResponse> buscarConFiltros(String motivo, String encargado) {
-        return excusasProcesadas.stream()
-                .filter(e -> {
-                    boolean coincideMotivo = motivo == null
-                            || e.getTipo().getClass().getSimpleName().equalsIgnoreCase(motivo);
-
-                    boolean coincideEncargado = encargado == null;
-                    if (e.getEncargadoAcepto() != null) {
-                        coincideEncargado = coincideEncargado ||
-                                encargado.equalsIgnoreCase(e.getEncargadoAcepto().nombre()) ||
-                                encargado.equalsIgnoreCase(e.getEncargadoAcepto().rol()) ||
-                                encargado.equals(String.valueOf(e.getEncargadoAcepto().legajo()));
-                    }
-
-                    return coincideMotivo && coincideEncargado;
-                })
-                .map(this::toResponse)
-                .toList();
-    }
-
-    public List<ExcusaResponse> obtenerRechazadas() {
-        return rechazadas.stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    public List<String> getNotificaciones() {
-        return notificaciones;
     }
 
     public ExcusaResponse buscarPorId(long id) {
-        return excusasProcesadas.stream()
-                .filter(e -> e.getId() == id)
-                .findFirst()
+        return excusaRepository.findById(id)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NoSuchElementException("Excusa no encontrada con id: " + id));
     }
 
     public Excusa getExcusaById(long id) {
-        return excusasProcesadas.stream()
-                .filter(e -> e.getId() == id)
-                .findFirst()
+        return excusaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Excusa no encontrada con id: " + id));
     }
 
     public boolean eliminarPorId(long id) {
-        boolean eliminada = excusasProcesadas.removeIf(e -> e.getId() == id);
-        rechazadas.removeIf(e -> e.getId() == id);
-        return eliminada;
+        if (excusaRepository.existsById(id)) {
+            excusaRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     public boolean fueRechazada(long id) {
-        return rechazadas.stream().anyMatch(e -> e.getId() == id);
+        return false;
     }
 
     private ExcusaResponse toResponse(Excusa excusa) {
@@ -157,9 +110,9 @@ public class ExcusaService {
         int encargadoLegajo = -1;
 
         if (excusa.getEncargadoAcepto() != null) {
-            encargadoNombre = excusa.getEncargadoAcepto().nombre();
-            encargadoRol = excusa.getEncargadoAcepto().rol();
-            encargadoLegajo = excusa.getEncargadoAcepto().legajo();
+            encargadoNombre = excusa.getEncargadoAcepto().getNombre();
+            encargadoRol = excusa.getEncargadoAcepto().getRol();
+            encargadoLegajo = excusa.getEncargadoAcepto().getLegajo();
         }
 
         return new ExcusaResponse(
@@ -174,4 +127,35 @@ public class ExcusaService {
                 encargadoLegajo
         );
     }
+    public List<String> getNotificaciones() {
+        return List.of("Notificación 1", "Notificación 2");
+    }
+
+    public List<ExcusaResponse> buscarConFiltros(String motivo, String encargado) {
+        return excusaRepository.findAll().stream()
+                .filter(e -> {
+                    boolean coincideMotivo = motivo == null
+                            || e.getTipo().getClass().getSimpleName().equalsIgnoreCase(motivo);
+
+                    boolean coincideEncargado = encargado == null;
+                    if (e.getEncargadoAcepto() != null) {
+                        coincideEncargado = coincideEncargado ||
+                                encargado.equalsIgnoreCase(e.getEncargadoAcepto().getNombre()) ||
+                                encargado.equalsIgnoreCase(e.getEncargadoAcepto().getRol()) ||
+                                encargado.equals(String.valueOf(e.getEncargadoAcepto().getLegajo()));
+                    }
+
+                    return coincideMotivo && coincideEncargado;
+                })
+                .map(this::toResponse)
+                .toList();
+    }
+
+    public List<ExcusaResponse> obtenerRechazadas() {
+        return excusaRepository.findAll().stream()
+                .filter(e -> e.getEncargadoAcepto() == null)
+                .map(this::toResponse)
+                .toList();
+    }
+
 }

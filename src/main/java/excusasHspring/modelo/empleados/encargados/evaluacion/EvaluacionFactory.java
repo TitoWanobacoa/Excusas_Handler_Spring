@@ -1,7 +1,7 @@
 package excusasHspring.modelo.empleados.encargados.evaluacion;
 
-import excusasHspring.servicios.IAdministradorProntuario;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.IEmailSender;
 
 public class EvaluacionFactory {
 

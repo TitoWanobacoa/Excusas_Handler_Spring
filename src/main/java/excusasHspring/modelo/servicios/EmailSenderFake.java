@@ -1,4 +1,4 @@
-package excusasHspring.servicios;
+package excusasHspring.modelo.servicios;
 
 import org.springframework.stereotype.Component;
 

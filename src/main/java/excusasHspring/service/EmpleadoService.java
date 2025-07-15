@@ -1,33 +1,40 @@
 package excusasHspring.service;
 
 import excusasHspring.modelo.empleados.Empleado;
+import excusasHspring.repository.EmpleadoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class EmpleadoService {
 
-    private final Map<Integer, Empleado> empleados = new HashMap<>();
+    private final EmpleadoRepository empleadoRepository;
+
+    @Autowired
+    public EmpleadoService(EmpleadoRepository empleadoRepository) {
+        this.empleadoRepository = empleadoRepository;
+    }
 
     public Empleado registrarEmpleado(Empleado empleado) {
-        if (empleados.containsKey(empleado.getNroLegajo())) {
+        if (empleadoRepository.existsById(empleado.getNroLegajo())) {
             throw new IllegalArgumentException("Ya existe un empleado con legajo " + empleado.getNroLegajo());
         }
-        empleados.put(empleado.getNroLegajo(), empleado);
-        return empleado;
+        return empleadoRepository.save(empleado);
     }
 
     public List<Empleado> listarEmpleados() {
-        return new ArrayList<>(empleados.values());
+        return empleadoRepository.findAll();
     }
 
     public Empleado buscarPorLegajo(int legajo) {
-        return empleados.get(legajo);
+        return empleadoRepository.findById(legajo)
+                .orElseThrow(() -> new NoSuchElementException("Empleado no encontrado con legajo: " + legajo));
     }
 
     public boolean existeLegajo(int legajo) {
-        return empleados.containsKey(legajo);
+        return empleadoRepository.existsById(legajo);
     }
 }
-

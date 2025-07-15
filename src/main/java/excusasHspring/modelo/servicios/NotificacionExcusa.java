@@ -1,4 +1,4 @@
-package excusasHspring.servicios;
+package excusasHspring.modelo.servicios;
 
 import excusasHspring.modelo.empleados.encargados.Encargado;
 import excusasHspring.modelo.excusas.Excusa;

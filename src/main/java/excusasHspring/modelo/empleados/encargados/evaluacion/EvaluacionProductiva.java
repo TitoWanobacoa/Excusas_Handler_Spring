@@ -2,8 +2,8 @@ package excusasHspring.modelo.empleados.encargados.evaluacion;
 
 import excusasHspring.modelo.empleados.encargados.Encargado;
 import excusasHspring.modelo.excusas.Excusa;
-import excusasHspring.servicios.IAdministradorProntuario;
-import excusasHspring.servicios.IEmailSender;
+import excusasHspring.modelo.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.servicios.IEmailSender;
 
 public class EvaluacionProductiva implements IEvaluacionExcusa {
 
@@ -16,10 +16,10 @@ public class EvaluacionProductiva implements IEvaluacionExcusa {
     }
 
     @Override
-    public void evaluar(Encargado encargado, Excusa excusa) {
-        if (excusa.getTipo().puedeSerAtendidaPor(encargado)) {
+    public boolean evaluar(Encargado encargado, Excusa excusa) {
+        if (encargado.aceptaExcusa(excusa.getTipo())) {
             admin.guardarProntuario(excusa);
-            encargado.aceptarExcusa(excusa); // registra al encargado que aceptó
+            encargado.aceptarExcusa(excusa);
         } else {
             emailSender.enviarEmail(
                     "cto@excusas.sa",
@@ -29,9 +29,16 @@ public class EvaluacionProductiva implements IEvaluacionExcusa {
             );
             encargado.pasarAlSiguiente(excusa);
         }
+        return false;
     }
+
     @Override
     public String getNombre() {
         return "PRODUCTIVA";
+    }
+
+    @Override
+    public String mensaje() {
+        return "Evaluación productiva realizada";
     }
 }

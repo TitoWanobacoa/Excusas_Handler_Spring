@@ -3,7 +3,8 @@ package excusasHspring.modelo.empleados.encargados;
 import excusasHspring.modelo.empleados.Empleado;
 import excusasHspring.modelo.excusas.Excusa;
 import excusasHspring.modelo.excusas.ITipoExcusa;
-import excusasHspring.servicios.EmailSenderFake;
+import excusasHspring.modelo.excusas.TipoExcusa;
+import excusasHspring.modelo.servicios.EmailSenderFake;
 
 public class ManejadorDeExcusa {
     private final Encargado encargadoInicial;
@@ -19,7 +20,7 @@ public class ManejadorDeExcusa {
         this.encargadoInicial = encargados[0];
     }
 
-    public void recibirExcusa(String descripcion, Empleado empleado, ITipoExcusa tipo) {
+    public void recibirExcusa(String descripcion, Empleado empleado, TipoExcusa tipo) {
         Excusa excusa = new Excusa(empleado, tipo, descripcion);
         encargadoInicial.manejarExcusa(excusa);
     }

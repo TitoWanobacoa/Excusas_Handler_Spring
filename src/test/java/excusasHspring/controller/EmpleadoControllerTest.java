@@ -1,4 +1,4 @@
-package tests.controller;
+package excusasHspring.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import excusasHspring.dto.EmpleadoRequest;

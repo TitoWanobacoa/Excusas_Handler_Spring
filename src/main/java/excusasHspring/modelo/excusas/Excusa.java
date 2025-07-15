@@ -1,24 +1,40 @@
 package excusasHspring.modelo.excusas;
 
 import excusasHspring.modelo.empleados.Empleado;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "excusas")
 public class Excusa {
-    private static long contadorId = 1;
 
-    private final long id;
-    private final Empleado empleado;
-    private final ITipoExcusa tipo;
-    private final String descripcion;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    private Empleado empleado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoExcusa tipo;
+
+    @Column(nullable = false)
+    private String descripcion;
+
+    @Embedded
     private DatosEncargado encargadoAcepto;
 
-    public Excusa(Empleado empleado, ITipoExcusa tipo, String descripcion) {
-        this.id = contadorId++;
+    protected Excusa() {
+
+    }
+
+    public Excusa(Empleado empleado, TipoExcusa tipo, String descripcion) {
         this.empleado = empleado;
         this.tipo = tipo;
         this.descripcion = descripcion;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -26,7 +42,7 @@ public class Excusa {
         return empleado;
     }
 
-    public ITipoExcusa getTipo() {
+    public TipoExcusa getTipo() {
         return tipo;
     }
 

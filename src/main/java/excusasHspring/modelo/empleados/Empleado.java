@@ -1,12 +1,25 @@
 package excusasHspring.modelo.empleados;
 
-import excusasHspring.modelo.empleados.encargados.ManejadorDeExcusa ;
+import excusasHspring.modelo.empleados.encargados.ManejadorDeExcusa;
 import excusasHspring.modelo.excusas.ITipoExcusa;
+import excusasHspring.modelo.excusas.TipoExcusa;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "empleados")
 public class Empleado {
-    private final String nombre;
-    private final String email;
-    private final int nroLegajo;
+
+    @Id
+    private int nroLegajo;
+
+    @Column(nullable = false)
+    private String nombre;
+
+    @Column(nullable = false)
+    private String email;
+
+    protected Empleado() {
+    }
 
     public Empleado(String nombre, String email, int nroLegajo) {
         this.nombre = nombre;
@@ -14,7 +27,7 @@ public class Empleado {
         this.nroLegajo = nroLegajo;
     }
 
-    public void excusarse(String motivo, ITipoExcusa tipo, ManejadorDeExcusa manejador) {
+    public void excusarse(String motivo, TipoExcusa tipo, ManejadorDeExcusa manejador) {
         manejador.recibirExcusa(motivo, this, tipo);
     }
 
@@ -30,4 +43,3 @@ public class Empleado {
         return nroLegajo;
     }
 }
-

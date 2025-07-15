@@ -4,13 +4,15 @@ import excusasHspring.modelo.empleados.Empleado;
 import excusasHspring.modelo.empleados.encargados.*;
 import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionNormal;
 import excusasHspring.modelo.empleados.encargados.evaluacion.EvaluacionProductiva;
-import excusasHspring.modelo.excusas.*;
-import excusasHspring.servicios.IAdministradorProntuario;
+import excusasHspring.modelo.excusas.Excusa;
+import excusasHspring.modelo.excusas.TipoExcusa;
+import excusasHspring.modelo.servicios.*;
+import excusasHspring.repository.ProntuarioRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import excusasHspring.servicios.AdministradorProntuario;
-import excusasHspring.servicios.EmailSenderFake;
-import excusasHspring.servicios.IEmailSender;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class CadenaResponsabilidadTest {
 
@@ -24,16 +26,18 @@ class CadenaResponsabilidadTest {
     @BeforeEach
     void setUp() {
         IEmailSender emailSender = new EmailSenderFake();
-        IAdministradorProntuario admin = new AdministradorProntuario();
 
-        // Encargados
-        Encargado recepcionista = new Recepcionista("Recepcionista", "recepcion@excusas.sa", 201, new EmailSenderFake());
-        Encargado supervisor = new Supervisor("Supervisor", "supervision@excusas.sa", 202, new EmailSenderFake());
+        ProntuarioRepository fakeRepo = mock(ProntuarioRepository.class);
+        when(fakeRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        IAdministradorProntuario admin = new AdministradorProntuario(fakeRepo);
+
+        Encargado recepcionista = new Recepcionista("Recepcionista", "recepcion@excusas.sa", 201, emailSender);
+        Encargado supervisor = new Supervisor("Supervisor", "supervision@excusas.sa", 202, emailSender);
         Encargado gerente = new GerenteRRHH("Gerente RRHH", "rrhh@excusas.sa", 123, emailSender);
         Encargado ceo = new CEO("CEO", "ceo@excusas.sa", 999, emailSender, admin);
-        Encargado rechazador = new RechazadorExcusas("Rechazador", "rechazo@excusas.sa", 203, new EmailSenderFake());
+        Encargado rechazador = new RechazadorExcusas("Rechazador", "rechazo@excusas.sa", 203, emailSender);
 
-        // Estrategias
         recepcionista.setEstrategia(new EvaluacionNormal());
         supervisor.setEstrategia(new EvaluacionNormal());
         gerente.setEstrategia(new EvaluacionNormal());
@@ -42,7 +46,6 @@ class CadenaResponsabilidadTest {
 
         manejador = new ManejadorDeExcusa(recepcionista, supervisor, gerente, ceo, rechazador);
 
-        // Empleados
         empleadoTrivial = new Empleado("Ana", "ana@mail.com", 1);
         empleadoModerado = new Empleado("Luis", "luis@mail.com", 2);
         empleadoInverosimil = new Empleado("Nora", "nora@mail.com", 3);
@@ -52,26 +55,12 @@ class CadenaResponsabilidadTest {
 
     @Test
     void testCadenaCompletaConDistintosTipos() {
-        // Trivial a Recepcionista
-        empleadoTrivial.excusarse("Me quedé dormida", new Trivial(), manejador);
+        empleadoTrivial.excusarse("Me quedé dormida", TipoExcusa.TRIVIAL, manejador);
+        empleadoModerado.excusarse("Cuidé a un familiar", TipoExcusa.MODERADA, manejador);
+        empleadoInverosimil.excusarse("Una paloma robó mi bici", TipoExcusa.INVEROSIMIL, manejador);
+        empleadoComplejo.excusarse("Fui abducido por aliens", TipoExcusa.COMPLEJA, manejador);
 
-        // Moderada a Supervisor
-        empleadoModerado.excusarse("Cuidé a un familiar", new Moderada(), manejador);
 
-        // Inverosímil a Gerente
-        empleadoInverosimil.excusarse("Una paloma robó mi bici", new Inverosimil(), manejador);
-
-        // Compleja a CEO
-        empleadoComplejo.excusarse("Fui abducido por aliens", new Compleja(), manejador);
-
-        // No aceptada por nadie, a Rechazador
-        ITipoExcusa tipoFalso = new ITipoExcusa() {
-            @Override
-            public boolean puedeSerAtendidaPor(Encargado encargado) {
-                return false;
-            }
-        };
-        empleadoNoValido.excusarse("No tenía ganas", tipoFalso, manejador);
-
+        empleadoNoValido.excusarse("No tenía ganas", TipoExcusa.TRIVIAL, manejador);
     }
 }

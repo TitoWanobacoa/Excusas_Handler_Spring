@@ -4,6 +4,8 @@ import excusasHspring.modelo.empleados.encargados.Encargado;
 import excusasHspring.modelo.excusas.Excusa;
 
 public interface IEvaluacionExcusa {
-    void evaluar(Encargado encargado, Excusa excusa);
+    boolean evaluar(Encargado encargado, Excusa excusa);
     String getNombre();
+
+    String mensaje();
 }
